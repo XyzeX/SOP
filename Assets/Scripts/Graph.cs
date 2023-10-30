@@ -7,6 +7,8 @@ public class Graph : MonoBehaviour
     public GameObject circlePrefab;
     public GameObject linePrefab;
     public List<Vertex> vertices = new List<Vertex>();
+    public Vertex startVertex = null;
+    public Vertex endVertex = null;
 
     // CreateVertex creates a vertex at a given position
     public void CreateVertex(Vector2 pos, Color color)

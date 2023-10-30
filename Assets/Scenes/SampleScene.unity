@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 399706483}
   - component: {fileID: 399706482}
+  - component: {fileID: 399706484}
   m_Layer: 0
   m_Name: Spawner
   m_TagString: Untagged
@@ -154,9 +155,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   circlePrefab: {fileID: 7053460206684651654, guid: 03c6175f6c01d314f9fdc4c7efd4905f, type: 3}
   linePrefab: {fileID: 5787398568324209229, guid: f8146e62605a344479dbc7aac27bdb1e, type: 3}
-  positions:
-  - {x: 0, y: 0}
-  - {x: -1, y: 1}
 --- !u!4 &399706483
 Transform:
   m_ObjectHideFlags: 0
@@ -172,6 +170,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &399706484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399706481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59253e6c4274e5848aeee3a026813d91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseVertexColor: {r: 0.42352945, g: 0.44705886, b: 0.79215693, a: 1}
+  markColor: {r: 0.9184212, g: 0.9433962, b: 0.12904951, a: 1}
+  startColor: {r: 0.21960661, g: 0.990566, b: 0.23385417, a: 1}
+  endColor: {r: 1, g: 0.2216981, b: 0.2216981, a: 1}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

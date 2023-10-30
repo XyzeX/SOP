@@ -4,11 +4,11 @@ public class Connection
 {
     // Declare public variables
     public float weight;
+    public GameObject line;
 
     // Declare private variables
     private Vertex vertex1;
     private Vertex vertex2;
-    private GameObject line;
 
     // Constructer
     public Connection(Vertex _vertex1, Vertex _vertex2, float _weight, GameObject lineInstance)
@@ -25,6 +25,16 @@ public class Connection
         SetLineRotation(length);
         SetLinePosition();
         SetLineLength(length);
+    }
+
+    // GetOtherVertex returns the other vertex in the connection
+    public Vertex GetOtherVertex(Vertex vertex)
+    {
+        if (vertex == vertex1)
+        {
+            return vertex2;
+        }
+        return vertex1;
     }
 
     // SetColor changes the color of the connection and both vertices to the new color

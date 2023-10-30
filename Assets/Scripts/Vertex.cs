@@ -35,7 +35,14 @@ public class Vertex
     // SetColor changes the color of the vertex
     public void SetColor(Color newColor)
     {
-        // Apply new color to the sprite renderer on the vertex instance
+        // Apply new color to the sprite renderer
         instance.GetComponent<SpriteRenderer>().color = newColor;
+    }
+
+    // GetColor returns the current color of the vertex
+    public Color GetColor()
+    {
+        // Read color from the sprite renderer
+        return instance.GetComponent<SpriteRenderer>().color;
     }
 }
