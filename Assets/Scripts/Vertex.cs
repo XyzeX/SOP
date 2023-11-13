@@ -6,9 +6,10 @@ public class Vertex
     // Declare public variables
     public Vector3 pos;
     public GameObject instance;
-
     public List<Connection> connections = new List<Connection>();
     public Connection bestConnection;
+
+    public float bestWeight = float.PositiveInfinity;
 
     // Constructer
     public Vertex(Vector3 _pos, GameObject circleInstance)

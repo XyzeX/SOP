@@ -10,6 +10,25 @@ public class Graph : MonoBehaviour
     public Vertex startVertex = null;
     public Vertex endVertex = null;
 
+    // Declare algorithms
+    Dijkstra dijkstra = new Dijkstra();
+
+    private void Update()
+    {
+        // Check for spacebar press
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            // Reset graphs guesses
+            ResetGraph();
+
+            // Send graph to djikstra
+            dijkstra.SetGraph(vertices, startVertex, endVertex);
+
+            // Start pathfinding asynchronously
+            StartCoroutine(dijkstra.Pathfind());
+        }
+    }
+
     // CreateVertex creates a vertex at a given position
     public void CreateVertex(Vector2 pos, Color color)
     {
@@ -33,5 +52,18 @@ public class Graph : MonoBehaviour
 
         // Give connection information to the vertices
         vertex1.AddConnection(vertex2, weight, lineInstance);
+    }
+
+    private void ResetGraph()
+    {
+        foreach (Vertex vertex in vertices)
+        {
+            vertex.bestWeight = float.PositiveInfinity;
+
+            if (vertex == startVertex)
+            {
+                vertex.bestWeight = 0f;
+            }
+        }
     }
 }
