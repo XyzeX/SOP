@@ -6,6 +6,7 @@ public class Graph : MonoBehaviour
     // Declare public variables
     public GameObject circlePrefab;
     public GameObject linePrefab;
+    public GameObject weightTextPrefab;
     public List<Vertex> vertices = new List<Vertex>();
     public Vertex startVertex = null;
     public Vertex endVertex = null;
@@ -15,6 +16,12 @@ public class Graph : MonoBehaviour
 
     private void Update()
     {
+        // Don't pathfind if the start and end vertices aren't set
+        if (startVertex == null || endVertex == null)
+        {
+            return;
+        }
+
         // Check for spacebar press
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -49,9 +56,10 @@ public class Graph : MonoBehaviour
     {
         // Create instance for the connection, with the spawner as it's parent
         GameObject lineInstance = Instantiate(linePrefab, transform);
+        GameObject weightText = Instantiate(weightTextPrefab, GameObject.Find("ConnectionWeights").transform);
 
         // Give connection information to the vertices
-        vertex1.AddConnection(vertex2, weight, lineInstance);
+        vertex1.AddConnection(vertex2, weight, lineInstance, weightText);
     }
 
     private void ResetGraph()
@@ -65,5 +73,22 @@ public class Graph : MonoBehaviour
                 vertex.bestWeight = 0f;
             }
         }
+    }
+}
+
+// GraphData is used for storing only necessary information to recreate the graph
+public class GraphData
+{
+    public List<Vector3> vertexPos;
+    public List<Vector3> connections;
+    public int startVertex;
+    public int endVertex;
+
+    public GraphData(List<Vector3> _vertexPos, List<Vector3> _connections, int _startVertex, int _endVertex)
+    {
+        vertexPos = _vertexPos;
+        connections = _connections;
+        startVertex = _startVertex;
+        endVertex = _endVertex;
     }
 }

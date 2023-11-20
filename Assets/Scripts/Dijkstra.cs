@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public class Dijkstra
 {
     // Pathfinding data
-    private HashSet<Vertex> searchedVertices;
     private List<Vertex> unsearchedVertices;
+    private HashSet<Vertex> searchedVertices;
 
     // Graph
     private Vertex startVertex;
@@ -16,26 +17,53 @@ public class Dijkstra
     // Pathfind starts finding the shortest path
     public IEnumerator Pathfind()
     {
+        bool pathFound = false;
+
+        // Main loop, loops through all necessary vertices
         while (unsearchedVertices.Count > 0)
         {
+            // Start a timer
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            stopwatch.Start();
+
+            // Every loop, search from the first vertex in the list - the one which currently has the smalles total weight
             Vertex vertex = unsearchedVertices[0];
+
+            // Remove it from the list of unsearched vertices, add it the the list of searched vertices instead
             unsearchedVertices.RemoveAt(0);
             searchedVertices.Add(vertex);
 
+            // If the end vertex has been found, stop pathfinding
             if (vertex == endVertex)
             {
-                TraceBack();
+                // Stop timer
+                stopwatch.Stop();
+                UnityEngine.Debug.Log("Path found in: " + stopwatch.ElapsedMilliseconds + "ms");
+
+                pathFound = true;
                 break;
             }
 
+            // Loop through all connections for the current vertex
             foreach (Connection connection in vertex.connections)
             {
+                // Find the vertex that the connection is connected to
                 Vertex otherVertex = connection.GetOtherVertex(vertex);
 
+                // If the other vertex has already been searched, ignore it
+                if (searchedVertices.Contains(otherVertex))
+                {
+                    continue;
+                }
+
+                // Calculate the weight using the current path
                 float weightGuess = vertex.bestWeight + connection.weight;
                 if (weightGuess <= otherVertex.bestWeight)
                 {
+                    // Keep the better total weight
                     otherVertex.bestWeight = weightGuess;
+
+                    // Keep the connection for traceback
                     otherVertex.bestConnection = connection;
                 }
 
@@ -55,10 +83,15 @@ public class Dijkstra
                         unsearchedVertices.Add(otherVertex);
                     }
                 }
-
-                Debug.Log(vertex.bestWeight);
-                yield return new WaitForSeconds(.1f);
             }
+        }
+
+        yield return null;
+
+        if (pathFound)
+        {
+            // If a path was found, trace it back
+            StartCoroutine(TraceBack());
         }
     }
 
@@ -77,7 +110,7 @@ public class Dijkstra
     }
 
     // TraceBack walks through the solution, and colors the fastet path
-    private void TraceBack()
+    private IEnumerator TraceBack()
     {
         // Start at the end
         Vertex currentVertex = endVertex;
@@ -87,6 +120,8 @@ public class Dijkstra
         {
             currentVertex.bestConnection.SetColor(Color.white);
             currentVertex = currentVertex.bestConnection.GetOtherVertex(currentVertex);
+
+            yield return new WaitForSeconds(1f);
         }
     }
 }

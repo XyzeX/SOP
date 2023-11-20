@@ -1,4 +1,6 @@
+using TMPro;
 using UnityEngine;
+using System;
 
 public class Draw : MonoBehaviour
 {
@@ -7,14 +9,39 @@ public class Draw : MonoBehaviour
     public Color markColor;
     public Color startColor;
     public Color endColor;
+    public GameObject inputWindow;
 
     // Declare private variables
+    private TMP_InputField inputField;
     private Graph graph;
     private Vertex prevVertex;
+    private Connection markedConnection;
+    private string numbers = "0123456789,";
 
     // Start is called before the first frame update
     private void Start()
     {
+        // Get UI elements
+        inputField = inputWindow.transform.Find("InputField (TMP)").GetComponent<TMP_InputField>();
+
+        // Only accept numbers in inputField
+        inputField.onValidateInput = (string text, int i, char newChar) =>
+        {
+            if (numbers.IndexOf(newChar) != -1)
+            {
+                // Return number
+                return newChar;
+            }
+            else
+            {
+                // Not a number
+                return '\0';
+            }
+        };
+
+        // Hide UI from the beginning
+        inputWindow.SetActive(false);
+
         // Keep a reference to the graph object
         graph = GameObject.Find("Spawner").GetComponent<Graph>();
     }
@@ -22,6 +49,18 @@ public class Draw : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        // Don't do any drawing if window is open
+        if (inputWindow.activeSelf)
+        {
+            // Shortcut to press OK
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                OnOK();
+            }
+
+            return;
+        }
+
         // Check for left click to create a new vertex
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
@@ -48,37 +87,8 @@ public class Draw : MonoBehaviour
         // Check if a vertex is marked
         if (prevVertex != null)
         {
-            Vertex newPrevVertex = null;
-
-            foreach (Connection connection in prevVertex.connections)
-            {
-                Vertex otherVertex = connection.GetOtherVertex(prevVertex);
-                newPrevVertex = otherVertex;
-
-                // Delete connection for the other vertex
-                otherVertex.connections.Remove(connection);
-
-                // Delete visual connection
-                Destroy(connection.line);
-            }
-
-            // Check if vertex was start or end
-            if (prevVertex == graph.startVertex)
-            {
-                graph.startVertex = null;
-            }
-            else if (prevVertex == graph.endVertex)
-            {
-                graph.endVertex = null;
-            }
-
-            // Delete visual vertex
-            Destroy(prevVertex.instance);
-
-            // Delete vertex from graph
-            graph.vertices.Remove(prevVertex);
-
-            // If the vertex had a connection, mark it
+            // Mark a connected vertex if it exists
+            Vertex newPrevVertex = DeleteVertex(prevVertex);
             if (newPrevVertex != null)
             {
                 MarkVertex(newPrevVertex);
@@ -88,6 +98,45 @@ public class Draw : MonoBehaviour
                 prevVertex = null;
             }
         }
+    }
+
+    // Deletes the given vertex and it's connections
+    public Vertex DeleteVertex(Vertex vertex)
+    {
+        Vertex newPrevVertex = null;
+
+        foreach (Connection connection in vertex.connections)
+        {
+            Vertex otherVertex = connection.GetOtherVertex(vertex);
+            newPrevVertex = otherVertex;
+
+            // Delete connection for the other vertex
+            otherVertex.connections.Remove(connection);
+
+            // Delete weight number
+            Destroy(connection.weightText);
+
+            // Delete visual connection
+            Destroy(connection.line);
+        }
+
+        // Check if vertex was start or end
+        if (vertex == graph.startVertex)
+        {
+            graph.startVertex = null;
+        }
+        else if (vertex == graph.endVertex)
+        {
+            graph.endVertex = null;
+        }
+
+        // Delete visual vertex
+        Destroy(vertex.instance);
+
+        // Delete vertex from graph
+        graph.vertices.Remove(vertex);
+
+        return newPrevVertex;
     }
 
     // HandleRightClick finds the vertex to toggle
@@ -222,7 +271,7 @@ public class Draw : MonoBehaviour
         // Check if connection already exists
         foreach (Connection connection in vertex1.connections)
         {
-            // If the connection exists, return
+            // If the connection exists, exit
             if (connection.GetOtherVertex(vertex1) == vertex2)
             {
                 return;
@@ -232,8 +281,43 @@ public class Draw : MonoBehaviour
         // Find the starting weight
         float weight = 10 * Mathf.Sqrt(Mathf.Pow(vertex1.pos.x - vertex2.pos.x, 2) + Mathf.Pow(vertex1.pos.y - vertex2.pos.y, 2));
 
+        // Get connection weight from user
+        inputField.text = weight.ToString();
+        inputWindow.SetActive(true);
+
         // Create connection between the two vertices with default weight 10
         graph.CreateConnection(vertex2, vertex1, weight);
+
+        // Save connection for button click
+        foreach(Connection connection in vertex1.connections)
+        {
+            if (connection.GetOtherVertex(vertex1) == vertex2)
+            {
+                markedConnection = connection;
+                break;
+            }
+        }
+    }
+
+    // Called when user has finished inputting weight
+    public void OnOK()
+    {
+        // Hide window
+        inputWindow.SetActive(false);
+
+        // Update weight
+        float weight;
+        float.TryParse(inputField.text, out weight);
+
+        // Make sure mark isn't deleted (e.g. if graph was loaded while menu was active)
+        try
+        {
+            markedConnection.SetWeight(weight);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Mark no longer exists, and was therefore ignored");
+        }
     }
 
     // MarkVertex takes in a vertex and marks it
@@ -244,7 +328,7 @@ public class Draw : MonoBehaviour
     }
 
     // ResetMarkedVertex resets the marked vertex if it exists
-    private void ResetMarkedVertex()
+    public void ResetMarkedVertex()
     {
         // Check if there is a vertex to reset
         if (prevVertex == null)

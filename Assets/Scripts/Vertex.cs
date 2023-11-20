@@ -23,10 +23,10 @@ public class Vertex
     }
 
     // AddConnection creates a connection between two vertices given a weight and a new instance
-    public void AddConnection(Vertex otherVertex, float weight, GameObject lineInstance)
+    public void AddConnection(Vertex otherVertex, float weight, GameObject lineInstance, GameObject weightTextInstance)
     {
         // Create the connection between the two vertices and save it in the list
-        Connection newConnection = new Connection(this, otherVertex, weight, lineInstance);
+        Connection newConnection = new Connection(this, otherVertex, weight, lineInstance, weightTextInstance);
         connections.Add(newConnection);
 
         // Also save the connection on the other vertex
