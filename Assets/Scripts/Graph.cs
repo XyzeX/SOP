@@ -32,6 +32,7 @@ public class Graph : MonoBehaviour
             dijkstra.SetGraph(vertices, startVertex, endVertex);
 
             // Start pathfinding asynchronously
+            Debug.Log("Starting Dijkstra");
             StartCoroutine(dijkstra.Pathfind());
         }
     }

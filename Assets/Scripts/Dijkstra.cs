@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Dijkstra
@@ -17,15 +19,43 @@ public class Dijkstra
     // Pathfind starts finding the shortest path
     public IEnumerator Pathfind()
     {
-        bool pathFound = false;
+        int remaining = 100000;
 
+        // Copy vertices for reset
+        List<Vertex> savedVertices = vertices;
+        Vertex savedStartVertex = startVertex;
+        Vertex savedEndVertex = endVertex;
+
+        yield return null;
+
+        // Start a timer
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        stopwatch.Start();
+
+        // Run the algorithm <remaining> amount of times
+        while (remaining > 0)
+        {
+            Algorithm();
+
+            // Reset graph every time
+            SetGraph(savedVertices, savedStartVertex, savedEndVertex);
+
+            remaining--;
+        }
+
+        // Stop timer
+        stopwatch.Stop();
+        long timeTaken = stopwatch.ElapsedMilliseconds;
+        UnityEngine.Debug.Log("Paths found in: " + timeTaken + "ms");
+
+        // Show route in the end
+        TraceBack();
+    }
+
+    private void Algorithm() {
         // Main loop, loops through all necessary vertices
         while (unsearchedVertices.Count > 0)
         {
-            // Start a timer
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            stopwatch.Start();
-
             // Every loop, search from the first vertex in the list - the one which currently has the smalles total weight
             Vertex vertex = unsearchedVertices[0];
 
@@ -36,11 +66,6 @@ public class Dijkstra
             // If the end vertex has been found, stop pathfinding
             if (vertex == endVertex)
             {
-                // Stop timer
-                stopwatch.Stop();
-                UnityEngine.Debug.Log("Path found in: " + stopwatch.ElapsedMilliseconds + "ms");
-
-                pathFound = true;
                 break;
             }
 
@@ -85,14 +110,6 @@ public class Dijkstra
                 }
             }
         }
-
-        yield return null;
-
-        if (pathFound)
-        {
-            // If a path was found, trace it back
-            StartCoroutine(TraceBack());
-        }
     }
 
     // Save a copy of the graph
@@ -110,7 +127,7 @@ public class Dijkstra
     }
 
     // TraceBack walks through the solution, and colors the fastet path
-    private IEnumerator TraceBack()
+    private void TraceBack()
     {
         // Start at the end
         Vertex currentVertex = endVertex;
@@ -121,7 +138,7 @@ public class Dijkstra
             currentVertex.bestConnection.SetColor(Color.white);
             currentVertex = currentVertex.bestConnection.GetOtherVertex(currentVertex);
 
-            yield return new WaitForSeconds(1f);
+            //yield return new WaitForSeconds(1f);
         }
     }
 }

@@ -316,7 +316,7 @@ public class Draw : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError("Mark no longer exists, and was therefore ignored");
+            Debug.LogError("Mark no longer exists, and was therefore ignored\n" + e);
         }
     }
 
