@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class GraphLoader : MonoBehaviour
 {
@@ -15,6 +13,8 @@ public class GraphLoader : MonoBehaviour
     private void Start()
     {
         saveFile = Path.Combine(Application.persistentDataPath, "graph.json");
+
+        Debug.Log(saveFile);
 
         graph = GameObject.Find("Spawner").GetComponent<Graph>();
         draw = GameObject.Find("Spawner").GetComponent<Draw>();
@@ -113,14 +113,14 @@ public class GraphLoader : MonoBehaviour
             graph.CreateVertex(pos, draw.baseVertexColor);
         }
 
-        // Recreate all connections
-        foreach (Vector3 connection in graphData.connections)
+        // Recreate all edges
+        foreach (Vector3 edge in graphData.edges)
         {
-            // Find the two vertices the connection is connecting
-            Vertex v1 = graph.vertices[(int)connection.x];
-            Vertex v2 = graph.vertices[(int)connection.y];
+            // Find the two vertices the edge is connecting
+            Vertex v1 = graph.vertices[(int)edge.x];
+            Vertex v2 = graph.vertices[(int)edge.y];
 
-            graph.CreateConnection(v1, v2, connection.z);
+            graph.CreateEdge(v1, v2, edge.z);
         }
 
         // Load start vertex if saved
@@ -169,21 +169,21 @@ public class GraphLoader : MonoBehaviour
     /*
      * ConvertToGraphData creates a new GraphData, which only keeps necessary information
      * 
-     * List<Vector3> vertexPos:   Vector3(x, y, z)
-     * List<Vector3> connections: Vector3(index of vertex1, index of vertex2, weight)
-     * int startVertex:           index of starting vertex
-     * int endVertex:             index of ending vertex
+     * List<Vector3> vertexPos: Vector3(x, y, z)
+     * List<Vector3> edges:     Vector3(index of vertex1, index of vertex2, weight)
+     * int startVertex:         index of starting vertex
+     * int endVertex:           index of ending vertex
      */
     private GraphData ConvertToGraphData()
     {
         // Declare variables to save
         List<Vector3> vertexPos = new List<Vector3>();
-        List<Vector3> connections = new List<Vector3>();
+        List<Vector3> edges = new List<Vector3>();
         int startVertex = -1;
         int endVertex = -1;
 
-        // Hashset of all connections (makes sure each connection is only saved once)
-        HashSet<Connection> hashedConnections = new HashSet<Connection>();
+        // Hashset of all edges (makes sure each edge is only saved once)
+        HashSet<Edge> hashedEdges = new HashSet<Edge>();
 
         // Only save pos for all vertices and start/end vertex
         for (int i = 0; i < graph.vertices.Count; i++)
@@ -204,15 +204,15 @@ public class GraphLoader : MonoBehaviour
             // Save position of vertex
             vertexPos.Add(vertex.pos);
 
-            // Add all connections to hashset (will not be added if it already exists)
-            foreach (Connection connection in vertex.connections)
+            // Add all edges to hashset (will not be added if it already exists)
+            foreach (Edge edge in vertex.edges)
             {
-                hashedConnections.Add(connection);
+                hashedEdges.Add(edge);
             }
         }
 
-        // Only save necessary parts from connections (vertex1 index, vertex2 index, weight)
-        foreach (Connection connection in hashedConnections)
+        // Only save necessary parts from edges (vertex1 index, vertex2 index, weight)
+        foreach (Edge edge in hashedEdges)
         {
             // Save the two index of the vertices
             int i1 = -1;
@@ -221,7 +221,7 @@ public class GraphLoader : MonoBehaviour
             // Find the index of the vertices
             for (int i = 0; i < graph.vertices.Count; i++)
             {
-                if (graph.vertices[i].connections.Contains(connection))
+                if (graph.vertices[i].edges.Contains(edge))
                 {
                     // Change the one that hasn't been set
                     if (i1 < 0)
@@ -235,12 +235,12 @@ public class GraphLoader : MonoBehaviour
                 }
             }
 
-            // Save the connection
-            connections.Add(new Vector3(i1, i2, connection.weight));
+            // Save the edge
+            edges.Add(new Vector3(i1, i2, edge.weight));
         }
 
         // Create GraphData and return it
-        return new GraphData(vertexPos, connections, startVertex, endVertex);
+        return new GraphData(vertexPos, edges, startVertex, endVertex);
     }
 
     // ResetGraph resets all variables the graph depends on

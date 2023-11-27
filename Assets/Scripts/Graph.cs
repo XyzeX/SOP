@@ -4,6 +4,7 @@ using UnityEngine;
 public class Graph : MonoBehaviour
 {
     // Declare public variables
+    public int runs = 100000;
     public GameObject circlePrefab;
     public GameObject linePrefab;
     public GameObject weightTextPrefab;
@@ -12,7 +13,8 @@ public class Graph : MonoBehaviour
     public Vertex endVertex = null;
 
     // Declare algorithms
-    Dijkstra dijkstra = new Dijkstra();
+    Dijkstra dijkstra = new Dijkstra("Dijkstra");
+    AStar aStar = new AStar("AStar");
 
     private void Update()
     {
@@ -30,17 +32,21 @@ public class Graph : MonoBehaviour
 
             // Send graph to djikstra
             dijkstra.SetGraph(vertices, startVertex, endVertex);
+            aStar.SetGraph(vertices, startVertex, endVertex);
 
             // Start pathfinding asynchronously
             Debug.Log("Starting Dijkstra");
-            StartCoroutine(dijkstra.Pathfind());
+            StartCoroutine(dijkstra.Pathfind(runs));
+
+            Debug.Log("Staring AStar");
+            StartCoroutine(aStar.Pathfind(runs));
         }
     }
 
     // CreateVertex creates a vertex at a given position
     public void CreateVertex(Vector2 pos, Color color)
     {
-        // Convert position from 2D to 3D with z = -1 to show vertices on top of connections
+        // Convert position from 2D to 3D with z = -1 to show vertices on top of edges
         Vector3 position = new Vector3(pos.x, pos.y, -1);
 
         // Create instance for the vertex, with the spawner as it's parent
@@ -52,15 +58,15 @@ public class Graph : MonoBehaviour
         vertices.Add(vertex);
     }
 
-    // CreateConnection creates a connection between two vertices with a given weight
-    public void CreateConnection(Vertex vertex1, Vertex vertex2, float weight)
+    // CreateEdge creates an edge between two vertices with a given weight
+    public void CreateEdge(Vertex vertex1, Vertex vertex2, float weight)
     {
-        // Create instance for the connection, with the spawner as it's parent
+        // Create instance for the edge, with the spawner as it's parent
         GameObject lineInstance = Instantiate(linePrefab, transform);
-        GameObject weightText = Instantiate(weightTextPrefab, GameObject.Find("ConnectionWeights").transform);
+        GameObject weightText = Instantiate(weightTextPrefab, GameObject.Find("EdgeWeights").transform);
 
-        // Give connection information to the vertices
-        vertex1.AddConnection(vertex2, weight, lineInstance, weightText);
+        // Give edge information to the vertices
+        vertex1.AddEdge(vertex2, weight, lineInstance, weightText);
     }
 
     private void ResetGraph()
@@ -81,14 +87,14 @@ public class Graph : MonoBehaviour
 public class GraphData
 {
     public List<Vector3> vertexPos;
-    public List<Vector3> connections;
+    public List<Vector3> edges;
     public int startVertex;
     public int endVertex;
 
-    public GraphData(List<Vector3> _vertexPos, List<Vector3> _connections, int _startVertex, int _endVertex)
+    public GraphData(List<Vector3> _vertexPos, List<Vector3> _edges, int _startVertex, int _endVertex)
     {
         vertexPos = _vertexPos;
-        connections = _connections;
+        edges = _edges;
         startVertex = _startVertex;
         endVertex = _endVertex;
     }

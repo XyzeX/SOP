@@ -6,8 +6,8 @@ public class Vertex
     // Declare public variables
     public Vector3 pos;
     public GameObject instance;
-    public List<Connection> connections = new List<Connection>();
-    public Connection bestConnection;
+    public List<Edge> edges = new List<Edge>();
+    public Edge bestEdge;
 
     public float bestWeight = float.PositiveInfinity;
 
@@ -22,15 +22,15 @@ public class Vertex
         instance.transform.position = pos;
     }
 
-    // AddConnection creates a connection between two vertices given a weight and a new instance
-    public void AddConnection(Vertex otherVertex, float weight, GameObject lineInstance, GameObject weightTextInstance)
+    // AddEdge creates a edge between two vertices given a weight and a new instance
+    public void AddEdge(Vertex otherVertex, float weight, GameObject lineInstance, GameObject weightTextInstance)
     {
-        // Create the connection between the two vertices and save it in the list
-        Connection newConnection = new Connection(this, otherVertex, weight, lineInstance, weightTextInstance);
-        connections.Add(newConnection);
+        // Create the edge between the two vertices and save it in the list
+        Edge newEdge = new Edge(this, otherVertex, weight, lineInstance, weightTextInstance);
+        edges.Add(newEdge);
 
-        // Also save the connection on the other vertex
-        otherVertex.connections.Add(newConnection);
+        // Also save the edge on the other vertex
+        otherVertex.edges.Add(newEdge);
     }
 
     // SetColor changes the color of the vertex

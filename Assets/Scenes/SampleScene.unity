@@ -229,6 +229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 961cbcb923f48d048aaff2677df67ecb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  runs: 100000
   circlePrefab: {fileID: 7053460206684651654, guid: 03c6175f6c01d314f9fdc4c7efd4905f, type: 3}
   linePrefab: {fileID: 5787398568324209229, guid: f8146e62605a344479dbc7aac27bdb1e, type: 3}
   weightTextPrefab: {fileID: 3069107947648517906, guid: 3871f045691c7e8478c16289e9b13ead, type: 3}
@@ -553,7 +554,7 @@ GameObject:
   m_Component:
   - component: {fileID: 678590447}
   m_Layer: 5
-  m_Name: ConnectionWeights
+  m_Name: EdgeWeights
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

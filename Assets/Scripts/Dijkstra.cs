@@ -1,58 +1,12 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Unity.VisualScripting;
-using UnityEngine;
-
-public class Dijkstra
+public class Dijkstra : Pathfinding
 {
-    // Pathfinding data
-    private List<Vertex> unsearchedVertices;
-    private HashSet<Vertex> searchedVertices;
-
-    // Graph
-    private Vertex startVertex;
-    private Vertex endVertex;
-    private List<Vertex> vertices;
-
-    // Pathfind starts finding the shortest path
-    public IEnumerator Pathfind()
+    public Dijkstra(string _name)
     {
-        int remaining = 100000;
-
-        // Copy vertices for reset
-        List<Vertex> savedVertices = vertices;
-        Vertex savedStartVertex = startVertex;
-        Vertex savedEndVertex = endVertex;
-
-        yield return null;
-
-        // Start a timer
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        stopwatch.Start();
-
-        // Run the algorithm <remaining> amount of times
-        while (remaining > 0)
-        {
-            Algorithm();
-
-            // Reset graph every time
-            SetGraph(savedVertices, savedStartVertex, savedEndVertex);
-
-            remaining--;
-        }
-
-        // Stop timer
-        stopwatch.Stop();
-        long timeTaken = stopwatch.ElapsedMilliseconds;
-        UnityEngine.Debug.Log("Paths found in: " + timeTaken + "ms");
-
-        // Show route in the end
-        TraceBack();
+        name = _name;
     }
 
-    private void Algorithm() {
+    public override void Algorithm()
+    {
         // Main loop, loops through all necessary vertices
         while (unsearchedVertices.Count > 0)
         {
@@ -69,11 +23,11 @@ public class Dijkstra
                 break;
             }
 
-            // Loop through all connections for the current vertex
-            foreach (Connection connection in vertex.connections)
+            // Loop through all edges for the current vertex
+            foreach (Edge edge in vertex.edges)
             {
-                // Find the vertex that the connection is connected to
-                Vertex otherVertex = connection.GetOtherVertex(vertex);
+                // Find the vertex that the edge is connected to
+                Vertex otherVertex = edge.GetOtherVertex(vertex);
 
                 // If the other vertex has already been searched, ignore it
                 if (searchedVertices.Contains(otherVertex))
@@ -82,14 +36,14 @@ public class Dijkstra
                 }
 
                 // Calculate the weight using the current path
-                float weightGuess = vertex.bestWeight + connection.weight;
+                float weightGuess = vertex.bestWeight + edge.weight;
                 if (weightGuess <= otherVertex.bestWeight)
                 {
                     // Keep the better total weight
                     otherVertex.bestWeight = weightGuess;
 
-                    // Keep the connection for traceback
-                    otherVertex.bestConnection = connection;
+                    // Keep the edge for traceback
+                    otherVertex.bestEdge = edge;
                 }
 
                 if (!unsearchedVertices.Contains(otherVertex))
@@ -109,36 +63,6 @@ public class Dijkstra
                     }
                 }
             }
-        }
-    }
-
-    // Save a copy of the graph
-    public void SetGraph(List<Vertex> _vertices, Vertex _startVertex, Vertex _endVertex)
-    {
-        vertices = _vertices;
-        startVertex = _startVertex;
-        endVertex = _endVertex;
-
-        searchedVertices = new HashSet<Vertex>();
-        unsearchedVertices = new List<Vertex>();
-
-        startVertex.bestWeight = 0;
-        unsearchedVertices.Add(startVertex);
-    }
-
-    // TraceBack walks through the solution, and colors the fastet path
-    private void TraceBack()
-    {
-        // Start at the end
-        Vertex currentVertex = endVertex;
-
-        // Keep painting until the start vertex is reached
-        while (currentVertex != startVertex)
-        {
-            currentVertex.bestConnection.SetColor(Color.white);
-            currentVertex = currentVertex.bestConnection.GetOtherVertex(currentVertex);
-
-            //yield return new WaitForSeconds(1f);
         }
     }
 }

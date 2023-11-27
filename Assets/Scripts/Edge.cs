@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class Connection
+public class Edge
 {
     // Declare public variables
     public float weight;
@@ -11,7 +11,7 @@ public class Connection
     public Vertex vertex2;
 
     // Constructer
-    public Connection(Vertex _vertex1, Vertex _vertex2, float _weight, GameObject lineInstance, GameObject weightTextInstance)
+    public Edge(Vertex _vertex1, Vertex _vertex2, float _weight, GameObject lineInstance, GameObject weightTextInstance)
     {
         // Save values
         vertex1 = _vertex1;
@@ -22,7 +22,7 @@ public class Connection
 
         float length = GetLineLength();
 
-        // Correctly show the connection
+        // Correctly show the edge
         SetLineRotation(length);
         SetLinePosition();
         SetLineLength(length);
@@ -31,7 +31,7 @@ public class Connection
         SetWeightTextTransform();
     }
 
-    // GetOtherVertex returns the other vertex in the connection
+    // GetOtherVertex returns the other vertex in the edge
     public Vertex GetOtherVertex(Vertex vertex)
     {
         if (vertex == vertex1)
@@ -41,10 +41,10 @@ public class Connection
         return vertex1;
     }
 
-    // SetColor changes the color of the connection and both vertices to the new color
+    // SetColor changes the color of the edge and both vertices to the new color
     public void SetColor(Color newColor)
     {
-        // Apply new color to the sprite renderer on the connection instance
+        // Apply new color to the sprite renderer on the edge instance
         line.GetComponent<SpriteRenderer>().color = newColor;
 
         // Apply new color to the vertices
@@ -90,13 +90,13 @@ public class Connection
         line.transform.position = position;
     }
 
-    // SetLineLength changes the scale of the rectangle to visually show the connection
+    // SetLineLength changes the scale of the rectangle to visually show the edge
     private void SetLineLength(float length)
     {
         line.transform.localScale = new Vector3(0.1f, length, 0.1f);
     }
 
-    // GetLineLength calculates the distance between the two vertices in the connection
+    // GetLineLength calculates the distance between the two vertices in the edge
     private float GetLineLength()
     {
         // Calculate the square of the length using the pythagorean theorem

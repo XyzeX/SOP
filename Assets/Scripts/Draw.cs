@@ -15,7 +15,7 @@ public class Draw : MonoBehaviour
     private TMP_InputField inputField;
     private Graph graph;
     private Vertex prevVertex;
-    private Connection markedConnection;
+    private Edge markedEdge;
     private string numbers = "0123456789,";
 
     // Start is called before the first frame update
@@ -67,7 +67,7 @@ public class Draw : MonoBehaviour
             HandleLeftClick();
         }
 
-        // Check for right click to create a new connection
+        // Check for right click to create a new edge
         if (Input.GetKeyDown(KeyCode.Mouse1))
         {
             HandleRightClick();
@@ -81,7 +81,7 @@ public class Draw : MonoBehaviour
         }
     }
 
-    // DeleteMark deletes marked vertex and its connections
+    // DeleteMark deletes marked vertex and its edges
     private void DeleteMark()
     {
         // Check if a vertex is marked
@@ -100,24 +100,24 @@ public class Draw : MonoBehaviour
         }
     }
 
-    // Deletes the given vertex and it's connections
+    // Deletes the given vertex and it's edges
     public Vertex DeleteVertex(Vertex vertex)
     {
         Vertex newPrevVertex = null;
 
-        foreach (Connection connection in vertex.connections)
+        foreach (Edge edge in vertex.edges)
         {
-            Vertex otherVertex = connection.GetOtherVertex(vertex);
+            Vertex otherVertex = edge.GetOtherVertex(vertex);
             newPrevVertex = otherVertex;
 
-            // Delete connection for the other vertex
-            otherVertex.connections.Remove(connection);
+            // Delete edge for the other vertex
+            otherVertex.edges.Remove(edge);
 
             // Delete weight number
-            Destroy(connection.weightText);
+            Destroy(edge.weightText);
 
-            // Delete visual connection
-            Destroy(connection.line);
+            // Delete visual edge
+            Destroy(edge.line);
         }
 
         // Check if vertex was start or end
@@ -217,7 +217,7 @@ public class Draw : MonoBehaviour
             // Check if the user clicked on the vertex
             if (distance <= vertex.instance.transform.localScale.x / 2)
             {
-                MarkForConnection(vertex);
+                MarkForEdge(vertex);
                 return;
             }
             // If the mouse is too close to an existing vertex, do not create a new vertex
@@ -235,7 +235,7 @@ public class Draw : MonoBehaviour
             // If a vertex is marked, connect it to the new vertex
             if (prevVertex != null)
             {
-                // Create connection and mark the new vertex
+                // Create edge and mark the new vertex
                 Vertex newVertex = graph.vertices[graph.vertices.Count - 1];
                 ConnectVertices(newVertex, prevVertex);
                 ResetMarkedVertex();
@@ -244,8 +244,8 @@ public class Draw : MonoBehaviour
         }
     }
 
-    // MarkForConnection handles checks for marking a vertex
-    private void MarkForConnection(Vertex vertex)
+    // MarkForEdge handles checks for marking a vertex
+    private void MarkForEdge(Vertex vertex)
     {
         // Check if a previous vertex has been marked
         if (prevVertex == null)
@@ -258,21 +258,21 @@ public class Draw : MonoBehaviour
         // Make sure it's not the same vertex that was clicked again
         if (prevVertex != vertex)
         {
-            // Create connection between the two vertices
+            // Create edge between the two vertices
             ConnectVertices(vertex, prevVertex);
         }
 
         ResetMarkedVertex();
     }
 
-    // ConnectVertices creates a connection between two vertices if it doesnt exist
+    // ConnectVertices creates an edge between two vertices if it doesnt exist
     private void ConnectVertices(Vertex vertex1, Vertex vertex2)
     {
-        // Check if connection already exists
-        foreach (Connection connection in vertex1.connections)
+        // Check if edge already exists
+        foreach (Edge edge in vertex1.edges)
         {
-            // If the connection exists, exit
-            if (connection.GetOtherVertex(vertex1) == vertex2)
+            // If the edge exists, exit
+            if (edge.GetOtherVertex(vertex1) == vertex2)
             {
                 return;
             }
@@ -281,19 +281,19 @@ public class Draw : MonoBehaviour
         // Find the starting weight
         float weight = 10 * Mathf.Sqrt(Mathf.Pow(vertex1.pos.x - vertex2.pos.x, 2) + Mathf.Pow(vertex1.pos.y - vertex2.pos.y, 2));
 
-        // Get connection weight from user
+        // Get edge weight from user
         inputField.text = weight.ToString();
         inputWindow.SetActive(true);
 
-        // Create connection between the two vertices with default weight 10
-        graph.CreateConnection(vertex2, vertex1, weight);
+        // Create edge between the two vertices with default weight 10
+        graph.CreateEdge(vertex2, vertex1, weight);
 
-        // Save connection for button click
-        foreach(Connection connection in vertex1.connections)
+        // Save edge for button click
+        foreach(Edge edge in vertex1.edges)
         {
-            if (connection.GetOtherVertex(vertex1) == vertex2)
+            if (edge.GetOtherVertex(vertex1) == vertex2)
             {
-                markedConnection = connection;
+                markedEdge = edge;
                 break;
             }
         }
@@ -312,7 +312,7 @@ public class Draw : MonoBehaviour
         // Make sure mark isn't deleted (e.g. if graph was loaded while menu was active)
         try
         {
-            markedConnection.SetWeight(weight);
+            markedEdge.SetWeight(weight);
         }
         catch (Exception e)
         {
