@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+
 public class Dijkstra : Pathfinding
 {
+    // Constructor
     public Dijkstra(string _name)
     {
         name = _name;
@@ -7,14 +10,21 @@ public class Dijkstra : Pathfinding
 
     public override void Algorithm()
     {
+        List<Vertex> unsearchedVertices = new List<Vertex>
+        {
+            startVertex
+        };
+
         // Main loop, loops through all necessary vertices
         while (unsearchedVertices.Count > 0)
         {
-            // Every loop, search from the first vertex in the list - the one which currently has the smalles total weight
+            // Every loop, search from the first vertex in the list
+            // - the one which currently has the smallest total weight
             Vertex vertex = unsearchedVertices[0];
 
-            // Remove it from the list of unsearched vertices, add it the the list of searched vertices instead
+            // Remove it from unsearched
             unsearchedVertices.RemoveAt(0);
+            // Add it the the list of searched vertices instead
             searchedVertices.Add(vertex);
 
             // If the end vertex has been found, stop pathfinding
@@ -29,7 +39,7 @@ public class Dijkstra : Pathfinding
                 // Find the vertex that the edge is connected to
                 Vertex otherVertex = edge.GetOtherVertex(vertex);
 
-                // If the other vertex has already been searched, ignore it
+                // If the other vertex has already been searched, skip it
                 if (searchedVertices.Contains(otherVertex))
                 {
                     continue;
@@ -37,6 +47,19 @@ public class Dijkstra : Pathfinding
 
                 // Calculate the weight using the current path
                 float weightGuess = vertex.bestWeight + edge.weight;
+
+                //if (weightGuess < otherVertex.bestWeight || !unsearchedVertices.Contains(otherVertex))
+                //{
+                //    otherVertex.bestWeight = weightGuess;
+                //    otherVertex.bestEdge = edge;
+
+                //    if (!unsearchedVertices.Contains(otherVertex))
+                //    {
+                //        unsearchedVertices.Add(otherVertex);
+                //    }
+                //}
+
+                //
                 if (weightGuess <= otherVertex.bestWeight)
                 {
                     // Keep the better total weight
@@ -62,6 +85,7 @@ public class Dijkstra : Pathfinding
                         unsearchedVertices.Add(otherVertex);
                     }
                 }
+                //
             }
         }
     }

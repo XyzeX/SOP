@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,20 +28,32 @@ public class Graph : MonoBehaviour
         // Check for spacebar press
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            // Reset graphs guesses
-            ResetGraph();
-
-            // Send graph to djikstra
-            dijkstra.SetGraph(vertices, startVertex, endVertex);
-            aStar.SetGraph(vertices, startVertex, endVertex);
-
-            // Start pathfinding asynchronously
-            Debug.Log("Starting Dijkstra");
-            StartCoroutine(dijkstra.Pathfind(runs));
-
-            Debug.Log("Staring AStar");
-            StartCoroutine(aStar.Pathfind(runs));
+            // Start pathfinding in a coroutine
+            StartCoroutine(Run());
         }
+    }
+
+    // Run runs the all pathfinding in a coroutine
+    private IEnumerator Run()
+    {
+        // Reset graphs guesses
+        ResetGraph();
+
+        // Send graph to djikstra
+        dijkstra.SetGraph(vertices, startVertex, endVertex);
+        aStar.SetGraph(vertices, startVertex, endVertex);
+
+        yield return null;
+
+        // Start pathfinding
+
+        dijkstra.PathFind(runs);
+        dijkstra.TraceBack();
+
+        yield return new WaitForSeconds(2);
+
+        aStar.PathFind(runs);
+        aStar.TraceBack();
     }
 
     // CreateVertex creates a vertex at a given position
@@ -77,7 +90,8 @@ public class Graph : MonoBehaviour
 
             if (vertex == startVertex)
             {
-                vertex.bestWeight = 0f;
+                vertex.bestWeight = float.PositiveInfinity;
+                vertex.hCost = float.PositiveInfinity;
             }
         }
     }

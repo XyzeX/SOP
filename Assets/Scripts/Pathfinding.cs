@@ -6,7 +6,7 @@ using UnityEngine;
 public class Pathfinding
 {
     // Pathfinding data
-    public List<Vertex> unsearchedVertices;
+    //public Heap<Vertex> unsearchedVertices;
     public HashSet<Vertex> searchedVertices;
 
     // Graph
@@ -19,7 +19,7 @@ public class Pathfinding
     public string name = "";
 
     // Pathfind starts finding the shortest path
-    public IEnumerator Pathfind(int runs)
+    public void PathFind(int runs)
     {
         int remaining = runs;
 
@@ -27,8 +27,6 @@ public class Pathfinding
         List<Vertex> savedVertices = vertices;
         Vertex savedStartVertex = startVertex;
         Vertex savedEndVertex = endVertex;
-
-        yield return null;
 
         // Start a timer
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -49,9 +47,6 @@ public class Pathfinding
         stopwatch.Stop();
         long timeTaken = stopwatch.ElapsedMilliseconds;
         UnityEngine.Debug.Log(name + " found the path " + runs + " times in: " + timeTaken + "ms");
-
-        // Show route in the end
-        TraceBack();
     }
 
     // Save a copy of the graph
@@ -61,24 +56,30 @@ public class Pathfinding
         startVertex = _startVertex;
         endVertex = _endVertex;
 
-        searchedVertices = new HashSet<Vertex>();
-        unsearchedVertices = new List<Vertex>();
-
         startVertex.bestWeight = 0;
-        unsearchedVertices.Add(startVertex);
+
+        //unsearchedVertices = new Heap<Vertex>(vertices.Count);
+        searchedVertices = new HashSet<Vertex>();
+
+        //unsearchedVertices.Add(startVertex);
     }
 
     // TraceBack walks through the solution, and colors the fastet path
-    private void TraceBack()
+    public void TraceBack()
     {
+        float totalDistance = 0f;
+
         // Start at the end
         Vertex currentVertex = endVertex;
 
         // Keep painting until the start vertex is reached
         while (currentVertex != startVertex)
         {
+            totalDistance += currentVertex.bestEdge.weight;
             currentVertex.bestEdge.SetColor(Color.white);
             currentVertex = currentVertex.bestEdge.GetOtherVertex(currentVertex);
         }
+
+        UnityEngine.Debug.Log("Total Distance: " + totalDistance);
     }
 }

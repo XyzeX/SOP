@@ -10,7 +10,7 @@ public class Edge
     public Vertex vertex1;
     public Vertex vertex2;
 
-    // Constructer
+    // Constructor
     public Edge(Vertex _vertex1, Vertex _vertex2, float _weight, GameObject lineInstance, GameObject weightTextInstance)
     {
         // Save values

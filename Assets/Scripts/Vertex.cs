@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Vertex
+public class Vertex : IHeapItem<Vertex>
 {
     // Declare public variables
     public Vector3 pos;
@@ -10,8 +10,9 @@ public class Vertex
     public Edge bestEdge;
 
     public float bestWeight = float.PositiveInfinity;
+    public float hCost = float.PositiveInfinity;
 
-    // Constructer
+    // Constructor
     public Vertex(Vector3 _pos, GameObject circleInstance)
     {
         // Save values in class
@@ -21,6 +22,45 @@ public class Vertex
         // Move circle instance to the given position
         instance.transform.position = pos;
     }
+
+    // Calculate fCost
+    public float fCost()
+    {
+        return bestWeight + hCost;
+    }
+
+
+
+    // Implement Interface HeapIndex
+    private int heapIndex;
+
+    public int HeapIndex
+    {
+        get
+        {
+            return heapIndex;
+        }
+        set
+        {
+            heapIndex = value;
+        }
+    }
+
+    // Implement IComparable (used in IHeapIndex)
+    public int CompareTo(Vertex otherVertex)
+    {
+        // First of all compare the fCost
+        int comparison = fCost().CompareTo(otherVertex.fCost());
+
+        // If fCost is the same, let the hCost be the deciding factor
+        if (comparison == 0)
+        {
+            comparison = hCost.CompareTo(otherVertex.hCost);
+        }
+        return -comparison;
+    }
+
+
 
     // AddEdge creates a edge between two vertices given a weight and a new instance
     public void AddEdge(Vertex otherVertex, float weight, GameObject lineInstance, GameObject weightTextInstance)
