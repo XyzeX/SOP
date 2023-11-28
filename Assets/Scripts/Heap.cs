@@ -1,8 +1,12 @@
 using System;
 using UnityEngine;
 
+// Heap class works like a heap, where each parent has 0, 1 or 2 children
+// The heap should always be sorted
+// This means the first item will always be the most efficient vertex to search through
 public class Heap<T> where T : IHeapItem<T>
 {
+    // Array of items in heap
     T[] items;
     int currentItemCount;
 
