@@ -35,22 +35,14 @@ public class Heap<T> where T : IHeapItem<T>
     // Add adds an item into the heap at the correct location
     public void Add(T item)
     {
-        Debug.Log("Adding item to heap");
-
         // Set new items index at the end
         item.HeapIndex = currentItemCount;
-
-        Debug.Log("HeapIndex Set");
 
         // Put item into list
         items[currentItemCount] = item;
 
-        Debug.Log("Item put in heap");
-
         // Sort if from the bottom of the heap upwards
         SortUp(item);
-
-        Debug.Log("Item sorted in heap");
 
         currentItemCount++;
     }
@@ -77,17 +69,17 @@ public class Heap<T> where T : IHeapItem<T>
     // Contains checks if heap contains a given item
     public bool Contains(T item)
     {
-        return Equals(items[item.HeapIndex], items);
+        return Equals(items[item.HeapIndex], item);
     }
 
     // SortUp sorts an item in the heap from the bottom up
     private void SortUp(T item)
     {
-        // Get the item index just above it in the heap
-        int parentIndex = (item.HeapIndex - 1) / 2;
-
         while (true)
         {
+            // Get the item index just above it in the heap
+            int parentIndex = (item.HeapIndex - 1) / 2;
+
             // Get parent item
             T parentItem = items[parentIndex];
 
@@ -101,10 +93,6 @@ public class Heap<T> where T : IHeapItem<T>
             {
                 break;
             }
-
-            // Since we haven't breaked out yet, we have swapped the item one slot up
-            // Calculate the new parent index and repeat until no more swaps are needed
-            parentIndex = (item.HeapIndex - 1) / 2;
         }
     }
 
@@ -128,7 +116,7 @@ public class Heap<T> where T : IHeapItem<T>
                 // If the right child also exists, then which child to swap with
                 if (childIndexRight < currentItemCount)
                 {
-                    // Change swapIndex to right child if needed
+                    // Change swapIndex to right child if left has lower priority
                     if (items[childIndexLeft].CompareTo(items[childIndexRight]) < 0)
                     {
                         swapIndex = childIndexRight;

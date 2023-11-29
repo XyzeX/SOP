@@ -12,10 +12,13 @@ public class Graph : MonoBehaviour
     public List<Vertex> vertices = new List<Vertex>();
     public Vertex startVertex = null;
     public Vertex endVertex = null;
+    public float? heuristicConst = null;
 
     // Declare algorithms
     Dijkstra dijkstra = new Dijkstra("Dijkstra");
     AStar aStar = new AStar("AStar");
+
+    private bool pathfinding = false;
 
     private void Update()
     {
@@ -28,6 +31,31 @@ public class Graph : MonoBehaviour
         // Check for spacebar press
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            if (pathfinding)
+            {
+                return;
+            }
+
+            pathfinding = true;
+
+            // Make sure heuristic constant is loaded
+            if (heuristicConst == null)
+            {
+                heuristicConst = float.PositiveInfinity;
+                // Since it isn't loaded, it needs to be calculated
+                foreach (Vertex vertex in vertices)
+                {
+                    foreach (Edge edge in vertex.edges)
+                    {
+                        float diff = edge.weight / edge.length;
+                        if (diff < heuristicConst)
+                        {
+                            heuristicConst = diff;
+                        }
+                    }
+                }
+            }
+
             // Start pathfinding in a coroutine
             StartCoroutine(Run());
         }
@@ -40,20 +68,22 @@ public class Graph : MonoBehaviour
         ResetGraph();
 
         // Send graph to djikstra
-        dijkstra.SetGraph(vertices, startVertex, endVertex);
-        aStar.SetGraph(vertices, startVertex, endVertex);
+        dijkstra.SetGraph(vertices, startVertex, endVertex, (float)heuristicConst);
+        aStar.SetGraph(vertices, startVertex, endVertex, (float)heuristicConst);
 
         yield return null;
 
         // Start pathfinding
 
         dijkstra.PathFind(runs);
-        dijkstra.TraceBack();
+        dijkstra.TraceBack(Color.white);
 
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(2f);
 
         aStar.PathFind(runs);
-        aStar.TraceBack();
+        aStar.TraceBack(Color.black);
+
+        pathfinding = false;
     }
 
     // CreateVertex creates a vertex at a given position

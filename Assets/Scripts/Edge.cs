@@ -9,6 +9,7 @@ public class Edge
     public GameObject weightText;
     public Vertex vertex1;
     public Vertex vertex2;
+    public float length;
 
     // Constructor
     public Edge(Vertex _vertex1, Vertex _vertex2, float _weight, GameObject lineInstance, GameObject weightTextInstance)
@@ -20,7 +21,7 @@ public class Edge
         weightText = weightTextInstance;
         SetWeight(_weight);
 
-        float length = GetLineLength();
+        length = GetLineLength();
 
         // Correctly show the edge
         SetLineRotation(length);

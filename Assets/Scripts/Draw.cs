@@ -84,6 +84,9 @@ public class Draw : MonoBehaviour
     // DeleteMark deletes marked vertex and its edges
     private void DeleteMark()
     {
+        // Reset heuristic const so it will correctly be recalculated
+        graph.heuristicConst = null;
+
         // Check if a vertex is marked
         if (prevVertex != null)
         {
@@ -203,6 +206,9 @@ public class Draw : MonoBehaviour
     // Marks vertices when clicked on, or creates new when clicking in empty space
     private void HandleLeftClick()
     {
+        // Reset heuristic const so it will correctly be recalculated
+        graph.heuristicConst = null;
+
         bool isSpotFree = true;
 
         // Convert mouse position to world position

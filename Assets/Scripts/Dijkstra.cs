@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Dijkstra : Pathfinding
 {
@@ -45,21 +46,10 @@ public class Dijkstra : Pathfinding
                     continue;
                 }
 
+                //otherVertex.SetColor(Color.red);
+
                 // Calculate the weight using the current path
                 float weightGuess = vertex.bestWeight + edge.weight;
-
-                //if (weightGuess < otherVertex.bestWeight || !unsearchedVertices.Contains(otherVertex))
-                //{
-                //    otherVertex.bestWeight = weightGuess;
-                //    otherVertex.bestEdge = edge;
-
-                //    if (!unsearchedVertices.Contains(otherVertex))
-                //    {
-                //        unsearchedVertices.Add(otherVertex);
-                //    }
-                //}
-
-                //
                 if (weightGuess <= otherVertex.bestWeight)
                 {
                     // Keep the better total weight
@@ -85,7 +75,6 @@ public class Dijkstra : Pathfinding
                         unsearchedVertices.Add(otherVertex);
                     }
                 }
-                //
             }
         }
     }

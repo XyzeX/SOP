@@ -13,6 +13,7 @@ public class Pathfinding
     public Vertex startVertex;
     public Vertex endVertex;
     public List<Vertex> vertices;
+    public float heuristicConst;
 
     // Overritten by algorithm
     public virtual void Algorithm() { }
@@ -38,7 +39,7 @@ public class Pathfinding
             Algorithm();
 
             // Reset graph every time
-            SetGraph(savedVertices, savedStartVertex, savedEndVertex);
+            SetGraph(savedVertices, savedStartVertex, savedEndVertex, heuristicConst);
 
             remaining--;
         }
@@ -50,22 +51,20 @@ public class Pathfinding
     }
 
     // Save a copy of the graph
-    public void SetGraph(List<Vertex> _vertices, Vertex _startVertex, Vertex _endVertex)
+    public void SetGraph(List<Vertex> _vertices, Vertex _startVertex, Vertex _endVertex, float _heuristicConst)
     {
         vertices = _vertices;
         startVertex = _startVertex;
         endVertex = _endVertex;
+        heuristicConst = _heuristicConst;
 
         startVertex.bestWeight = 0;
 
-        //unsearchedVertices = new Heap<Vertex>(vertices.Count);
         searchedVertices = new HashSet<Vertex>();
-
-        //unsearchedVertices.Add(startVertex);
     }
 
     // TraceBack walks through the solution, and colors the fastet path
-    public void TraceBack()
+    public void TraceBack(Color color)
     {
         float totalDistance = 0f;
 
@@ -76,7 +75,7 @@ public class Pathfinding
         while (currentVertex != startVertex)
         {
             totalDistance += currentVertex.bestEdge.weight;
-            currentVertex.bestEdge.SetColor(Color.white);
+            currentVertex.bestEdge.SetColor(color);
             currentVertex = currentVertex.bestEdge.GetOtherVertex(currentVertex);
         }
 

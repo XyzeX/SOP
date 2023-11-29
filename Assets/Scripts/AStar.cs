@@ -45,8 +45,12 @@ public class AStar : Pathfinding
                 // Calculate the weight using the current path
                 float bestWeightGuess = vertex.bestWeight + edge.weight;
 
+                // If we found a better path, go search the vertex
+                // Or if the vertex doesn't have an exising guess, search it as well
                 if (bestWeightGuess < otherVertex.bestWeight || !unsearchedVertices.Contains(otherVertex))
                 {
+                    //otherVertex.SetColor(Color.blue);
+
                     // Update costs
                     otherVertex.bestWeight = bestWeightGuess;
                     otherVertex.hCost = GetDistance(otherVertex, endVertex);
@@ -70,14 +74,8 @@ public class AStar : Pathfinding
     // GetDistance calculates a minimum distance to the other vertex
     private float GetDistance(Vertex v1, Vertex v2)
     {
-        float distX = Mathf.Abs(v1.pos.x - v2.pos.x);
-        float distY = Mathf.Abs(v1.pos.y - v2.pos.y);
-        if (distX > distY)
-        {
-            return 14 * distY + 10 * (distX - distY);
-        }
-        return 14 * distX - 10 * (distY - distX);
+        float dist = MathF.Sqrt(MathF.Pow(v1.pos.x - v2.pos.x, 2) + MathF.Pow(v1.pos.y - v2.pos.y, 2));
 
-        //return 10 * MathF.Sqrt(MathF.Pow(v1.pos.x + v2.pos.x, 2) + MathF.Pow(v1.pos.y + v2.pos.y, 2));
+        return heuristicConst * dist;
     }
 }
