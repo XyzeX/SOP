@@ -6,6 +6,7 @@ using UnityEngine;
 public class GraphLoader : MonoBehaviour
 {
     // Declare private variables
+    private string defaultFile = "Assets/graph.json";
     private string saveFile;
     private Graph graph;
     private Draw draw;
@@ -14,10 +15,11 @@ public class GraphLoader : MonoBehaviour
     {
         saveFile = Path.Combine(Application.persistentDataPath, "graph.json");
 
-        Debug.Log(saveFile);
-
         graph = GameObject.Find("Spawner").GetComponent<Graph>();
         draw = GameObject.Find("Spawner").GetComponent<Draw>();
+
+        // Load default on start
+        LoadFile(defaultFile);
     }
 
     private void Update()
@@ -44,16 +46,22 @@ public class GraphLoader : MonoBehaviour
     // LoadGraph loads the saved graph into the scene
     public void LoadGraph()
     {
+        LoadFile(saveFile);
+    }
+
+    // Loads the given file into the scene
+    private void LoadFile(string loadFile)
+    {
         Debug.Log("Loading graph");
 
         // Check if file exists
-        if (!File.Exists(saveFile))
+        if (!File.Exists(loadFile))
         {
             return;
         }
 
         // Read file and deserialze
-        GraphData graphData = LoadFromFile();
+        GraphData graphData = LoadFromFile(loadFile);
 
         // If no data was read, return with an error
         if (graphData == null)
@@ -107,9 +115,8 @@ public class GraphLoader : MonoBehaviour
     private void LoadGraphFromGraphData(GraphData graphData)
     {
         // Recreate all vertices
-        foreach (Vector3 vertex in graphData.vertexPos)
+        foreach (Vector2 pos in graphData.vertexPos)
         {
-            Vector2 pos = new Vector3(vertex.x, vertex.y);
             graph.CreateVertex(pos, draw.baseVertexColor);
         }
 
@@ -139,7 +146,7 @@ public class GraphLoader : MonoBehaviour
     }
 
     // LoadFromFile reads the file and deserializes to GraphData
-    private GraphData LoadFromFile()
+    private GraphData LoadFromFile(string loadFile)
     {
         try
         {
@@ -147,7 +154,7 @@ public class GraphLoader : MonoBehaviour
             string data = "";
 
             // Load graph from file
-            using (FileStream stream = new FileStream(saveFile, FileMode.Open))
+            using (FileStream stream = new FileStream(loadFile, FileMode.Open))
             {
                 using (StreamReader reader = new StreamReader(stream))
                 {
@@ -161,7 +168,7 @@ public class GraphLoader : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError("Error occured while loading graph from: " + saveFile + "\n" + e);
+            Debug.LogError("Error occured while loading graph from: " + loadFile + "\n" + e);
             return null;
         }
     }
@@ -169,15 +176,15 @@ public class GraphLoader : MonoBehaviour
     /*
      * ConvertToGraphData creates a new GraphData, which only keeps necessary information
      * 
-     * List<Vector3> vertexPos: Vector3(x, y, z)
-     * List<Vector3> edges:     Vector3(index of vertex1, index of vertex2, weight)
+     * List<Vector2> vertexPos: Vector3(x, y)
+     * List<Vector2> edges:     Vector3(index of vertex1, index of vertex2, weight)
      * int startVertex:         index of starting vertex
      * int endVertex:           index of ending vertex
      */
     private GraphData ConvertToGraphData()
     {
         // Declare variables to save
-        List<Vector3> vertexPos = new List<Vector3>();
+        List<Vector2> vertexPos = new List<Vector2>();
         List<Vector3> edges = new List<Vector3>();
         int startVertex = -1;
         int endVertex = -1;
@@ -202,7 +209,7 @@ public class GraphLoader : MonoBehaviour
             }
 
             // Save position of vertex
-            vertexPos.Add(vertex.pos);
+            vertexPos.Add(new Vector2(vertex.pos.x, vertex.pos.y));
 
             // Add all edges to hashset (will not be added if it already exists)
             foreach (Edge edge in vertex.edges)

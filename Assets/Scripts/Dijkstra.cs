@@ -1,30 +1,26 @@
-using System.Collections.Generic;
-using UnityEngine;
+using TMPro;
 
 public class Dijkstra : Pathfinding
 {
     // Constructor
-    public Dijkstra(string _name)
+    public Dijkstra(string _name, TMP_Text _text)
     {
         name = _name;
+        text = _text;
     }
 
     public override void Algorithm()
     {
-        List<Vertex> unsearchedVertices = new List<Vertex>
-        {
-            startVertex
-        };
+        Heap<Vertex> unsearchedVertices = new Heap<Vertex>(vertices.Count);
+        unsearchedVertices.Add(startVertex);
 
         // Main loop, loops through all necessary vertices
         while (unsearchedVertices.Count > 0)
         {
             // Every loop, search from the first vertex in the list
             // - the one which currently has the smallest total weight
-            Vertex vertex = unsearchedVertices[0];
+            Vertex vertex = unsearchedVertices.RemoveFirstItem();
 
-            // Remove it from unsearched
-            unsearchedVertices.RemoveAt(0);
             // Add it the the list of searched vertices instead
             searchedVertices.Add(vertex);
 
@@ -46,33 +42,27 @@ public class Dijkstra : Pathfinding
                     continue;
                 }
 
-                //otherVertex.SetColor(Color.red);
-
                 // Calculate the weight using the current path
                 float weightGuess = vertex.bestWeight + edge.weight;
-                if (weightGuess <= otherVertex.bestWeight)
+
+                // If we found a better path, go search the vertex
+                // Or if the vertex doesn't have an exising guess, search it as well
+                if (weightGuess < otherVertex.bestWeight || !unsearchedVertices.Contains(otherVertex))
                 {
-                    // Keep the better total weight
+                    // Update costs
                     otherVertex.bestWeight = weightGuess;
-
-                    // Keep the edge for traceback
                     otherVertex.bestEdge = edge;
-                }
 
-                if (!unsearchedVertices.Contains(otherVertex))
-                {
-                    for (int i = 0; i < unsearchedVertices.Count; i++)
-                    {
-                        if (unsearchedVertices[i].bestWeight > weightGuess)
-                        {
-                            unsearchedVertices.Insert(i, otherVertex);
-                            break;
-                        }
-                    }
 
+                    // Make sure the vertex is in the heap
                     if (!unsearchedVertices.Contains(otherVertex))
                     {
                         unsearchedVertices.Add(otherVertex);
+                    }
+                    // If it already is in the heap, move it if necessary
+                    else
+                    {
+                        unsearchedVertices.UpdateItem(otherVertex);
                     }
                 }
             }

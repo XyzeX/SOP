@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using TMPro;
 
 public class Pathfinding
 {
@@ -18,6 +19,7 @@ public class Pathfinding
     // Overritten by algorithm
     public virtual void Algorithm() { }
     public string name = "";
+    public TMP_Text text;
 
     // Pathfind starts finding the shortest path
     public void PathFind(int runs)
@@ -28,6 +30,14 @@ public class Pathfinding
         List<Vertex> savedVertices = vertices;
         Vertex savedStartVertex = startVertex;
         Vertex savedEndVertex = endVertex;
+
+        if (name == "Dijkstra")
+        {
+            foreach (Vertex vertex in vertices)
+            {
+                vertex.hCost = 0;
+            }
+        }
 
         // Start a timer
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -48,6 +58,7 @@ public class Pathfinding
         stopwatch.Stop();
         long timeTaken = stopwatch.ElapsedMilliseconds;
         UnityEngine.Debug.Log(name + " found the path " + runs + " times in: " + timeTaken + "ms");
+        text.text = name + ": " + timeTaken + "ms";
     }
 
     // Save a copy of the graph

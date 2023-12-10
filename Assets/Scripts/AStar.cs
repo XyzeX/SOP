@@ -1,12 +1,13 @@
 using System;
-using UnityEngine;
+using TMPro;
 
 public class AStar : Pathfinding
 {
     // Constructor
-    public AStar(string _name)
+    public AStar(string _name, TMP_Text _text)
     {
         name = _name;
+        text = _text;
     }
 
     public override void Algorithm()
@@ -49,8 +50,6 @@ public class AStar : Pathfinding
                 // Or if the vertex doesn't have an exising guess, search it as well
                 if (bestWeightGuess < otherVertex.bestWeight || !unsearchedVertices.Contains(otherVertex))
                 {
-                    //otherVertex.SetColor(Color.blue);
-
                     // Update costs
                     otherVertex.bestWeight = bestWeightGuess;
                     otherVertex.hCost = GetDistance(otherVertex, endVertex);

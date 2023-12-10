@@ -1,24 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Graph : MonoBehaviour
 {
     // Declare public variables
-    public int runs = 100000;
-    public GameObject circlePrefab;
-    public GameObject linePrefab;
-    public GameObject weightTextPrefab;
+    public int runs = 10000;
+    public GameObject circlePrefab, linePrefab, weightTextPrefab;
     public List<Vertex> vertices = new List<Vertex>();
     public Vertex startVertex = null;
     public Vertex endVertex = null;
     public float? heuristicConst = null;
+    public TMP_Text runsText, dijkstraText, AstarText;
 
     // Declare algorithms
-    Dijkstra dijkstra = new Dijkstra("Dijkstra");
-    AStar aStar = new AStar("AStar");
+    Dijkstra dijkstra;
+    AStar aStar;
 
     private bool pathfinding = false;
+
+    private void Start()
+    {
+        runsText.text = "Runs: " + runs;
+        dijkstra = new Dijkstra("Dijkstra", dijkstraText);
+        aStar = new AStar("AStar", AstarText);
+    }
 
     private void Update()
     {
@@ -36,6 +43,8 @@ public class Graph : MonoBehaviour
                 return;
             }
 
+            dijkstraText.text = "Dijkstra: LOADING";
+            AstarText.text = "AStar: WAITING";
             pathfinding = true;
 
             // Make sure heuristic constant is loaded
@@ -71,15 +80,18 @@ public class Graph : MonoBehaviour
         dijkstra.SetGraph(vertices, startVertex, endVertex, (float)heuristicConst);
         aStar.SetGraph(vertices, startVertex, endVertex, (float)heuristicConst);
 
-        yield return null;
+        yield return new WaitForSeconds(0.1f);
 
         // Start pathfinding
 
+        dijkstraText.text = "Dijkstra: RUNNING";
         dijkstra.PathFind(runs);
         dijkstra.TraceBack(Color.white);
 
+        AstarText.text = "AStar: WAITING";
         yield return new WaitForSeconds(2f);
 
+        AstarText.text = "AStar: RUNNING";
         aStar.PathFind(runs);
         aStar.TraceBack(Color.black);
 
@@ -130,12 +142,12 @@ public class Graph : MonoBehaviour
 // GraphData is used for storing only necessary information to recreate the graph
 public class GraphData
 {
-    public List<Vector3> vertexPos;
+    public List<Vector2> vertexPos;
     public List<Vector3> edges;
     public int startVertex;
     public int endVertex;
 
-    public GraphData(List<Vector3> _vertexPos, List<Vector3> _edges, int _startVertex, int _endVertex)
+    public GraphData(List<Vector2> _vertexPos, List<Vector3> _edges, int _startVertex, int _endVertex)
     {
         vertexPos = _vertexPos;
         edges = _edges;
